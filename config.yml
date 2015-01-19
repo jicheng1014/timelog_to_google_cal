@@ -1,0 +1,5 @@
+service_account_email: 547147805826-f2bb2p5lru2464u1gqpkhg2ucs54ginu@developer.gserviceaccount.com
+key_file: myCalSync.p12
+application_name: test
+application_version: 1.0
+key_secret: notasecret
