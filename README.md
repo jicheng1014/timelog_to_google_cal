@@ -77,7 +77,7 @@ touch raw.txt
 
 之后把刚下载的.p12 的签名文件保存到项目同级目录下。
 
-修改配置文件，修改 service_account_email  和key_file 的具体值
+修改配置文件 config.yml ，修改 service_account_email  和key_file 的具体值
 
 
 -------------------
