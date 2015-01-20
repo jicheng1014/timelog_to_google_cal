@@ -48,14 +48,16 @@ print "calendar_id = #{calendar_id}"
 file = "raw.txt"
 day = 0
 case ARGV.count 
-  print "day ?   0 is today, 1 is yesterday"
+
+when 0
+  puts "day ?   0 is today, 1 is yesterday"
   day = gets
   day = day.to_i
 
 
-  print "filename ? default = 'raw.txt'"
+  puts "filename ? default = 'raw.txt'"
   file = gets
-  file = 'raw.txt' if file.empty?
+  file = 'raw.txt' if file.strip.empty?
 
 when 1
   day = ARGV[0].to_i  
@@ -67,7 +69,8 @@ end
 
 
 
-data = buildCalDate(file,DateTime.now.next_day(0 - day))
+standard_date = DateTime.now.next_day(0 - day)
+data = buildCalDate(file,standard_date)
 
 for item in data
   event = {
@@ -75,6 +78,7 @@ for item in data
     'start' => {
       'dateTime' => "#{item[:begin]}"
     },
+    'description' => standard_date.to_date.to_s,
     'end' => {
       'dateTime' => "#{item[:end]}"
     }
