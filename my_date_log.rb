@@ -1,6 +1,10 @@
 require 'rubygems'
+require 'json'
+require 'active_support/all'
 require "google/api_client"
 require "yaml"
+require "date"
+require_relative "cal"
 
 API_VERSION = 'v3'
 CACHED_API_FILE = "calendar-#{API_VERSION}.cache"
@@ -37,15 +41,39 @@ end
 result = client.execute(:api_method => service.calendar_list.list,
                       :parameters => {}
                        )
-print result.body
-#  entries = result.data.items
-#  entries.each do |e|
-#    print e.summary + "\n"
-#  end
-#  if !(page_token = result.data.next_page_token)
-#    break
-#  end
-#  result = client.execute(:api_method => service.calendar_list.list,
-#                          :parameters => {'pageToken' => page_token})
-#end
-#
+json = result.data.items[0]
+calendar_id = json.id
+
+
+event = {
+  'summary' => 'Hello World',
+  'start' => {
+    'dateTime' => "2015-01-20T01:42:58+08:00"
+  },
+  'end' => {
+    'dateTime' => "2015-01-20T02:42:58+08:00"
+  }
+}
+
+data = buildCalDate("raw.txt")
+
+for item in data
+  event = {
+    'summary' => "#{item[:title]}",
+    'start' => {
+      'dateTime' => "#{item[:begin]}"
+    },
+    'end' => {
+      'dateTime' => "#{item[:end]}"
+    }
+  }
+  result = client.execute(:api_method => service.events.insert,
+                          :parameters => {'calendarId' => calendar_id},
+                          :body => JSON.dump(event),
+                          :headers => {'Content-Type' => 'application/json'})
+
+end
+#result = client.execute(:api_method => service.events.insert,
+#                        :parameters => {'calendarId' => calendar_id},
+#                        :body => JSON.dump(event),
+#                        :headers => {'Content-Type' => 'application/json'})
