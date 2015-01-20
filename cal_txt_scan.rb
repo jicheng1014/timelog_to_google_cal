@@ -13,8 +13,6 @@ def buildCalDate(file_name,my_date = DateTime.now)
     end_hours = data[1][0..1]
     end_minutes = data[1][-2..-1]
 
-    print "null \n" if last_end_time.nil? 
-    print "last =  #{last_end_time}\n " if last_end_time 
     begin_datetime = my_date.change(hour: begin_hours.to_i,min: begin_minutes.to_i)
     begin_datetime = begin_datetime.next_day if over_day
 

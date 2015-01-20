@@ -9,6 +9,27 @@ require_relative "cal_txt_scan"
 API_VERSION = 'v3'
 CACHED_API_FILE = "calendar-#{API_VERSION}.cache"
 opt = YAML.load_file "config.yml"
+file = "raw.txt"
+day = 0
+case ARGV.count 
+
+when 0
+  puts "day ?   0 is today, 1 is yesterday"
+  day = gets
+  day = day.to_i
+
+
+  puts "filename ? default = 'raw.txt'"
+  file = gets
+  file = 'raw.txt' if file.strip.empty?
+
+when 1
+  day = ARGV[0].to_i  
+when 2
+  day = ARGV[0].to_i  
+  file = ARGV[1]
+end
+
 
 client = Google::APIClient.new(
   :application_name=>opt['application_name'],:application_version => opt["application_version"])
@@ -45,31 +66,33 @@ json = result.data.items[0]
 calendar_id = json.id
 
 print "calendar_id = #{calendar_id}"
-file = "raw.txt"
-day = 0
-case ARGV.count 
-
-when 0
-  puts "day ?   0 is today, 1 is yesterday"
-  day = gets
-  day = day.to_i
 
 
-  puts "filename ? default = 'raw.txt'"
-  file = gets
-  file = 'raw.txt' if file.strip.empty?
+standard_date = DateTime.now.next_day(0 - day).change(hour: 0,min:0)
+result = client.execute(:api_method => service.events.list,
+                        :parameters => {
+                              'calendarId' => calendar_id,
+                              'timeMax' => standard_date.next_day(2),
+                              'timeMin' => standard_date
+})
+old_data = result.data.items.select do |item|
+  item.description and item.description == standard_date.to_date.to_s
+end
 
-when 1
-  day = ARGV[0].to_i  
-when 2
-  day = ARGV[0].to_i  
-  file = ARGV[1]
+for item in old_data
+  puts "old log data #{item.start.dateTime} - #{item.end.dateTime} #{item.summary} "
+  # delete
+  result = client.execute(:api_method => service.events.delete,
+                                                  :parameters => {'calendarId' => calendar_id, 'eventId' => item.id})
+  
 end
 
 
 
 
-standard_date = DateTime.now.next_day(0 - day)
+
+
+
 data = buildCalDate(file,standard_date)
 
 for item in data
