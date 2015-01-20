@@ -4,7 +4,7 @@ require 'active_support/all'
 require "google/api_client"
 require "yaml"
 require "date"
-require_relative "cal"
+require_relative "cal_txt_scan"
 
 API_VERSION = 'v3'
 CACHED_API_FILE = "calendar-#{API_VERSION}.cache"
@@ -44,18 +44,30 @@ result = client.execute(:api_method => service.calendar_list.list,
 json = result.data.items[0]
 calendar_id = json.id
 
+print "calendar_id = #{calendar_id}"
+file = "raw.txt"
+day = 0
+case ARGV.count 
+  print "day ?   0 is today, 1 is yesterday"
+  day = gets
+  day = day.to_i
 
-event = {
-  'summary' => 'Hello World',
-  'start' => {
-    'dateTime' => "2015-01-20T01:42:58+08:00"
-  },
-  'end' => {
-    'dateTime' => "2015-01-20T02:42:58+08:00"
-  }
-}
 
-data = buildCalDate("raw.txt")
+  print "filename ? default = 'raw.txt'"
+  file = gets
+  file = 'raw.txt' if file.empty?
+
+when 1
+  day = ARGV[0].to_i  
+when 2
+  day = ARGV[0].to_i  
+  file = ARGV[1]
+end
+
+
+
+
+data = buildCalDate(file,DateTime.now.next_day(0 - day))
 
 for item in data
   event = {
@@ -73,7 +85,3 @@ for item in data
                           :headers => {'Content-Type' => 'application/json'})
 
 end
-#result = client.execute(:api_method => service.events.insert,
-#                        :parameters => {'calendarId' => calendar_id},
-#                        :body => JSON.dump(event),
-#                        :headers => {'Content-Type' => 'application/json'})
