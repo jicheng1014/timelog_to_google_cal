@@ -30,6 +30,10 @@ when 2
   file = ARGV[1]
 end
 
+standard_date = DateTime.now.next_day(0 - day).change(hour: 0,min:0)
+
+puts "开始处理#{standard_date.to_date.to_s} 的数据，数据来源为#{file}"
+
 
 client = Google::APIClient.new(
   :application_name=>opt['application_name'],:application_version => opt["application_version"])
@@ -68,7 +72,6 @@ calendar_id = json.id
 print "calendar_id = #{calendar_id}"
 
 
-standard_date = DateTime.now.next_day(0 - day).change(hour: 0,min:0)
 result = client.execute(:api_method => service.events.list,
                         :parameters => {
                               'calendarId' => calendar_id,
@@ -80,16 +83,12 @@ old_data = result.data.items.select do |item|
 end
 
 for item in old_data
-  puts "old log data #{item.start.dateTime} - #{item.end.dateTime} #{item.summary} "
+  puts "delete old log data #{item.start.dateTime} - #{item.end.dateTime} #{item.summary} ..."
   # delete
   result = client.execute(:api_method => service.events.delete,
                                                   :parameters => {'calendarId' => calendar_id, 'eventId' => item.id})
   
 end
-
-
-
-
 
 
 
@@ -106,9 +105,11 @@ for item in data
       'dateTime' => "#{item[:end]}"
     }
   }
+  puts "写入记录 #{item[:begin].strftime("%H:%M")} - #{item[:end].strftime("%H:%M")} #{item[:title]}"
   result = client.execute(:api_method => service.events.insert,
                           :parameters => {'calendarId' => calendar_id},
                           :body => JSON.dump(event),
                           :headers => {'Content-Type' => 'application/json'})
 
 end
+puts "写完了，可以访问 http://calendar.google.com 了"
