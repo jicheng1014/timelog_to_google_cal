@@ -1,3 +1,4 @@
+#! /usr/bin/env ruby
 require 'rubygems'
 require 'json'
 require 'active_support/all'
@@ -94,6 +95,7 @@ end
 
 data = buildCalDate(file,standard_date)
 
+puts "begin to write data"
 for item in data
   event = {
     'summary' => "#{item[:title]}",
@@ -105,7 +107,7 @@ for item in data
       'dateTime' => "#{item[:end]}"
     }
   }
-  puts "写入记录 #{item[:begin].strftime("%H:%M")} - #{item[:end].strftime("%H:%M")} #{item[:title]}"
+  puts "#{item[:begin].strftime("%H:%M")} - #{item[:end].strftime("%H:%M")} #{item[:title]}"
   result = client.execute(:api_method => service.events.insert,
                           :parameters => {'calendarId' => calendar_id},
                           :body => JSON.dump(event),

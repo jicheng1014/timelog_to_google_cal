@@ -24,6 +24,9 @@ def buildCalDate(file_name,my_date = DateTime.now)
     last_end_time = end_datetime
 
     minutes_between = (end_datetime - begin_datetime)*60 *24
+    if minutes_between > 1000
+      raise Exception.new("#{row}")
+    end
     title = "#{data[2..-1].join " "} (#{minutes_between.to_i})"
     answer << { title: title,begin: begin_datetime,end:end_datetime}
   end
